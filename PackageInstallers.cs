@@ -2,19 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Globalization;
 using System.ComponentModel;
+using System.IO;
 
 namespace InstallQueuer
 {
@@ -30,7 +22,9 @@ namespace InstallQueuer
 
         protected static int launchProgramAndWait(string ExeName, string Params)
         {
-            var proc = Process.Start(ExeName, Params);
+            var psi = new ProcessStartInfo(ExeName, Params);
+            psi.EnvironmentVariables["REBOOT"] = "ReallySuppress";
+            var proc = Process.Start(psi);
             proc.WaitForExit();
             return proc.ExitCode;
         }
@@ -65,7 +59,7 @@ namespace InstallQueuer
             string quiet_option = (Options.ContainsKey(PackageInstallerSupportedFeatures.UnattendInstall) ?
                 " /qn " : "");
 
-            string msiexec_params = String.Format(CultureInfo.InvariantCulture, "/I \"{0}\" {1}",
+            string msiexec_params = String.Format(CultureInfo.InvariantCulture, "/I \"{0}\" {1} /norestart",
                 FilePath, quiet_option);
 
             int retcode = launchProgramAndWait(@"%SystemRoot%\System32\MsiExec.exe", msiexec_params);
@@ -77,7 +71,30 @@ namespace InstallQueuer
     }
 
     [Export(typeof(IPackageInstallerFactory))]
-    public class ExePackageInstallerFactory : IPackageInstallerFactory
+    public class VsPackageInstallerFactory : IPackageInstallerFactory
+    {
+        public int AffinityForPackage(string FilePath)
+        {
+            var di = new DirectoryInfo(Path.GetDirectoryName(FilePath));
+            bool is_this_vs = di.GetFiles().Select(x => x.FullName.ToLowerInvariant())
+                .Any(x => x.EndsWith("vs_setup.msi"));
+
+            return (is_this_vs ? 10 : 0);
+        }
+
+        public IPackageInstaller CreateInstallerForPackage(string FilePath)
+        {
+            // VS's *real* setup program is actually buried under a folder - if they give us the root
+            // installer, let's find the real one
+            var setup_path = Path.Combine(Path.GetDirectoryName(FilePath),
+                "Setup", "Setup.exe");
+
+            return new DummyExePackageInstaller(setup_path, " /full /noreboot ", " /q ");
+        }
+    }
+
+    [Export(typeof(IPackageInstallerFactory))]
+    public class DummyExePackageInstallerFactory : IPackageInstallerFactory
     {
         public int AffinityForPackage(string FilePath)
         {
@@ -86,23 +103,25 @@ namespace InstallQueuer
 
         public IPackageInstaller CreateInstallerForPackage(string FilePath)
         {
-            return new ExePackageInstaller(FilePath);
+            return new DummyExePackageInstaller(FilePath, "", "");
         }
     }
 
     public class DummyExePackageInstaller : BasePackageInstaller
     {
-        public DummyExePackageInstaller(string FilePath) : base(FilePath) {}
+        readonly string quietSwitch;
+        readonly string exeParams;
+        public DummyExePackageInstaller(string FilePath, string Params, string QuietSwitch) : base(FilePath) { exeParams = Params;  quietSwitch = QuietSwitch; }
 
         public override PackageInstallerSupportedFeatures SupportedFeatures {
             get {
-                return 0;
+                return (String.IsNullOrEmpty(quietSwitch) ? 0 : PackageInstallerSupportedFeatures.UnattendInstall);
             }
         }
 
         public override void InstallPackage(Dictionary<PackageInstallerSupportedFeatures, object> Options)
         {
-            int retcode = launchProgramAndWait(FilePath);
+            int retcode = launchProgramAndWait(FilePath, exeParams ?? "");
 
             // Who knows what this means...
             if (retcode != 0)
