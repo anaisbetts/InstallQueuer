@@ -22,32 +22,13 @@ namespace InstallQueuer.Ui
     /// </summary>
     public partial class MainWindow : Window
     {
-        [ImportMany]
-        public IEnumerable<IPackageInstallerFactory> PackageInstallers { get; set; }
-
-        readonly ObservableCollection<InstallableItem> InstallQueue = new ObservableCollection<InstallableItem>();
+        readonly AppViewModel ViewModel;
 
         public MainWindow()
         {
-            InitializeComponent();
-
-            var v = new MsiPackageInstaller("Foo");            
+            ViewModel = new AppViewModel(this);
+            InitializeComponent();          
         }
-    }
-
-    class InstallableItem : INotifyPropertyChanged
-    {
-        //
-        // INotifyPropertyChanged stuff
-        //
-
-        private void NotifyPropertyChanged(String property)
-        {
-            if (PropertyChanged != null) {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
 
