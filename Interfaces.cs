@@ -16,7 +16,7 @@ namespace InstallQueuer
 {
     [Flags]  
     public enum PackageInstallerSupportedFeatures {
-        SupportsUnattendInstall = 0x01,
+        UnattendInstall = 0x01,
         ValidFlagMask = 0x01,
     }
 
@@ -28,6 +28,7 @@ namespace InstallQueuer
     public interface IPackageInstaller {
         string FilePath { get; }
         PackageInstallerSupportedFeatures SupportedFeatures { get; }
+        void InstallPackage(Dictionary<PackageInstallerSupportedFeatures, object> options);
     }
 }
 

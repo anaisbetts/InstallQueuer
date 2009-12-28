@@ -30,6 +30,8 @@ namespace InstallQueuer.Ui
         public MainWindow()
         {
             InitializeComponent();
+
+            var v = new MsiPackageInstaller("Foo");            
         }
     }
 
