@@ -45,6 +45,23 @@ namespace InstallQueuer
             get { return (CurrentRunningJob != null); }
         }
 
+        void continueProcessNextItem()
+        {
+            var current = InstallQueue.FirstOrDefault(x => x.State == InstallableItemState.Queued);
+            if (current == null)    // Empty or all items complete
+                return;
+            if (IsRunning)
+                throw new Exception("continueProcessNextItem called when already running");
+
+            CurrentRunningJob = current.DoInstallAsync();
+            CurrentRunningJob.RunWorkerCompleted += (o,e) => {
+                CurrentRunningJob = null;
+                ((FrameworkElement)currentWindow).Dispatcher.BeginInvoke(new Action(continueProcessNextItem));
+            };
+
+            CurrentRunningJob.RunWorkerAsync();
+        }
+
 
         //
         // INotifyPropertyChanged stuff
@@ -78,7 +95,22 @@ namespace InstallQueuer
                 if (_State == value)
                     return;
                 _State = value;
-                notifyPropertyChanged("State");
+                notifypropertychanged("State");
+            }
+        }
+
+        public bool SupportsQuietInstall {
+            get { return (PackageInstaller.SupportedFeatures & PackageInstallerSupportedFeatures.UnattendInstall) != 0; }
+        }
+
+        bool _ShouldQuietInstall;
+        public bool ShouldQuietInstall {
+            get { return _ShouldQuietInstall; }
+            set {
+                if (_ShouldQuietInstall == value)
+                    return;
+                _ShouldQuietInstall = value;
+                notifyPropertyChanged("ShouldQuietInstall");
             }
         }
 
@@ -90,12 +122,49 @@ namespace InstallQueuer
             get { return Path.GetFileName(FullPath); }
         }
 
+        string _ErrorMessage
+        public string ErrorMessage {
+            get { return _ErrorMessage; }
+            set {
+                if (_ErrorMessage == value)
+                    return;
+                _ErrorMessage = value;
+                notifypropertychanged("ErrorMessage");
+            }
+        }
+
         public readonly IPackageInstaller PackageInstaller;
 
-        public BackgroundWorker DoInstall()
+        public BackgroundWorker DoInstallAsync()
         {
             if (State != InstallableItemState.Queued)
                 throw new Exception("Only queued items can be started");
+
+            State = InstallableItemState.Running;
+
+            var ret = new BackgroundWorker();
+            ret.DoWork += (o,e) => {
+                var opts = new Dictionary<PackageInstallerSupportedFeatures, object>();
+                if (SupportsQuietInstall && ShouldQuietInstall)
+                    opts[PackageInstallerSupportedFeatures.UnattendInstall] = true;
+
+                try {
+                    PackageInstaller.InstallPackage(opts);
+                } catch(Exception ex) {
+                    e.Result = ex;
+                }
+            };
+
+            ret.RunWorkerCompleted += (o,e) => {
+                var ex = e.Result as Exception;
+
+                if (ex != null)
+                    ErrorMessage = ex.Message;
+
+                State = (ex != null ? InstallableItemState.Failed : InstallableItemState.Succeeded);
+            };
+
+            return ret;
         }
 
 
