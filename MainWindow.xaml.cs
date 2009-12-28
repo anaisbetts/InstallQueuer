@@ -11,18 +11,41 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel.Composition;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
 
-namespace InstallQueuer
+namespace InstallQueuer.Ui
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        [ImportMany]
+        public IEnumerable<IPackageInstallerFactory> PackageInstallers { get; set; }
+
+        readonly ObservableCollection<InstallableItem> InstallQueue = new ObservableCollection<InstallableItem>();
+
         public MainWindow()
         {
             InitializeComponent();
         }
+    }
+
+    class InstallableItem : INotifyPropertyChanged
+    {
+        //
+        // INotifyPropertyChanged stuff
+        //
+
+        private void NotifyPropertyChanged(String property)
+        {
+            if (PropertyChanged != null) {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
 
