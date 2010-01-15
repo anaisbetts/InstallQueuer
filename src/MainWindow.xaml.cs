@@ -17,20 +17,22 @@ using System.Collections.ObjectModel;
 
 namespace InstallQueuer.Ui
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    [Export("AppView")]
     public partial class MainWindow : Window
     {
-        readonly AppViewModel ViewModel;
-
         public MainWindow()
-        {
-            ViewModel = new AppViewModel(this);
+        {            
             InitializeComponent();
-
             this.AllowDrop = true;
         }
+
+        [Import]
+        AppViewModel ViewModel {
+            get { return (AppViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
+        }
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(AppViewModel), typeof(MainWindow));
 
         protected override void OnDragEnter(DragEventArgs e)
         {
@@ -57,16 +59,6 @@ namespace InstallQueuer.Ui
             e.Effects = DragDropEffects.Copy;
             DropTargetHelper.Drop(e.Data, e.GetPosition(this), e.Effects);
             e.Handled = true;
-        }
-
-        private void rect_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Rectangle rect = sender as Rectangle;
-
-            DataObject data = new DataObject(new DragDropLib.DataObject());
-            data.SetDragImage(rect, e.GetPosition(rect));
-
-            DragDrop.DoDragDrop(rect, data, DragDropEffects.Copy);
         }
     }
 }

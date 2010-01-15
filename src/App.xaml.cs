@@ -8,6 +8,8 @@ using System.Windows;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using InstallQueuer.Ui;
+using System.ComponentModel.Composition.Hosting;
 
 namespace InstallQueuer
 {
@@ -16,18 +18,38 @@ namespace InstallQueuer
     /// </summary>
     public partial class App : Application 
     {
+        [Import("AppView")]
+        MainWindow theWindow { get; set; }
+
+        void Compose()
+        {
+            var catalog = new AggregateCatalog();
+            var thisAssembly = new AssemblyCatalog(System.Reflection.Assembly.GetExecutingAssembly());
+            catalog.Catalogs.Add(thisAssembly);
+
+            var container = new CompositionContainer(catalog);                        
+            container.ComposeParts(this);
+        }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            this.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Compose();
+            this.MainWindow = theWindow;
+            theWindow.Show();
+        }
     }
 
+    [Export]
     class AppViewModel : INotifyPropertyChanged
-    {    
-        public AppViewModel(IInputElement view) { currentWindow = view; }
-
+    {        
         [ImportMany]
         public IEnumerable<IPackageInstallerFactory> PackageInstallers { get; set; }
 
         readonly ObservableCollection<InstallableItem> InstallQueue = new ObservableCollection<InstallableItem>();
 
-        readonly IInputElement currentWindow;
+        [Import("AppView", typeof(MainWindow))]
+        IInputElement currentWindow;
 
         BackgroundWorker _CurrentRunningJob = null;
         public BackgroundWorker CurrentRunningJob {
