@@ -27,7 +27,46 @@ namespace InstallQueuer.Ui
         public MainWindow()
         {
             ViewModel = new AppViewModel(this);
-            InitializeComponent();          
+            InitializeComponent();
+
+            this.AllowDrop = true;
+        }
+
+        protected override void OnDragEnter(DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Copy;            
+            DropTargetHelper.DragEnter(this, e.Data, e.GetPosition(this), e.Effects);
+            e.Handled = true;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e)
+        {
+            DropTargetHelper.DragLeave();
+            e.Handled = true;
+        }
+
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Copy;                        
+            DropTargetHelper.DragOver(e.GetPosition(this), e.Effects);
+            e.Handled = true;
+        }
+
+        protected override void OnDrop(DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Copy;
+            DropTargetHelper.Drop(e.Data, e.GetPosition(this), e.Effects);
+            e.Handled = true;
+        }
+
+        private void rect_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Rectangle rect = sender as Rectangle;
+
+            DataObject data = new DataObject(new DragDropLib.DataObject());
+            data.SetDragImage(rect, e.GetPosition(rect));
+
+            DragDrop.DoDragDrop(rect, data, DragDropEffects.Copy);
         }
     }
 }

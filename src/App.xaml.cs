@@ -95,7 +95,7 @@ namespace InstallQueuer
                 if (_State == value)
                     return;
                 _State = value;
-                notifypropertychanged("State");
+                notifyPropertyChanged("State");
             }
         }
 
@@ -122,14 +122,14 @@ namespace InstallQueuer
             get { return Path.GetFileName(FullPath); }
         }
 
-        string _ErrorMessage
+        string _ErrorMessage;
         public string ErrorMessage {
             get { return _ErrorMessage; }
             set {
                 if (_ErrorMessage == value)
                     return;
                 _ErrorMessage = value;
-                notifypropertychanged("ErrorMessage");
+                notifyPropertyChanged("ErrorMessage");
             }
         }
 
