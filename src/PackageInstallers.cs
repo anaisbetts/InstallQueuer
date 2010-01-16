@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.ComponentModel;
 using System.IO;
+using System.Windows.Media;
 
 namespace InstallQueuer
 {
@@ -19,6 +20,12 @@ namespace InstallQueuer
 
         public abstract PackageInstallerSupportedFeatures SupportedFeatures {get;}
         public abstract void InstallPackage(Dictionary<PackageInstallerSupportedFeatures, object> options);
+
+        public virtual ImageSource Icon {
+            get { return null; }
+        }
+
+        public abstract string UserFriendlyDescription { get; }
 
         protected static int launchProgramAndWait(string ExeName, string Params)
         {
@@ -51,6 +58,13 @@ namespace InstallQueuer
         public override PackageInstallerSupportedFeatures SupportedFeatures {
             get {
                 return PackageInstallerSupportedFeatures.UnattendInstall;
+            }
+        }
+
+        public override string UserFriendlyDescription {
+            get { 
+                // TODO: No idea how to do this yet, probably have to P/Invoke MSI...
+                return "Unknown";
             }
         }
 
@@ -116,6 +130,13 @@ namespace InstallQueuer
         public override PackageInstallerSupportedFeatures SupportedFeatures {
             get {
                 return (String.IsNullOrEmpty(quietSwitch) ? 0 : PackageInstallerSupportedFeatures.UnattendInstall);
+            }
+        }
+
+        public override string UserFriendlyDescription {
+            get {
+                var fvi = FileVersionInfo.GetVersionInfo(FilePath);
+                return String.Format("{0} ({1})", fvi.ProductName, fvi.ProductVersion);
             }
         }
 

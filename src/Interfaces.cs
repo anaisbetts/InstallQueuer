@@ -25,9 +25,12 @@ namespace InstallQueuer
         IPackageInstaller CreateInstallerForPackage(string FilePath);
     }
 
-    public interface IPackageInstaller {
+    public interface IPackageInstaller {        
         string FilePath { get; }
+        string UserFriendlyDescription { get; }
+        ImageSource Icon { get; }
         PackageInstallerSupportedFeatures SupportedFeatures { get; }
+
         void InstallPackage(Dictionary<PackageInstallerSupportedFeatures, object> options);
     }
 }

@@ -15,6 +15,8 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <Utf8Output>true</Utf8Output>
+    <ExpressionBlendVersion>3.1.20108.20</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -59,6 +61,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SampleData\ProgramsToInstall\ProgramsToInstall.xaml.cs">
+      <DependentUpon>ProgramsToInstall.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ShellDragDrop.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -73,6 +78,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignTimeOnly>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PackageInstallers.cs" />
@@ -98,6 +107,26 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\image01.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\image02.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\image03.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\image04.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\image05.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\ABrush.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Avast.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Camtasia.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Counterstrike.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Curse.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\DbPowerAmp.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Diablo2.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\Firefox.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\iTunes.png" />
+    <DesignTimeOnly Include="SampleData\ProgramsToInstall\ProgramsToInstall_Files\L4d.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

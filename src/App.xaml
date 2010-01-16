@@ -1,8 +1,11 @@
-﻿<Application x:Class="InstallQueuer.App"             
+﻿<Application
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Startup="Application_Startup">
+             xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.ProgramsToInstall" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 mc:Ignorable="d" x:Class="InstallQueuer.App"
+		 	 Startup="Application_Startup">
     <Application.Resources>         
+    	<SampleData:ProgramsToInstall x:Key="ProgramsToInstall" d:IsDataSource="True"/>         
     </Application.Resources>
 </Application>
 
