@@ -8,16 +8,17 @@
 		
 	<Window.Resources>
 		<DataTemplate x:Key="InstallableItemDataTemplate">
-			<Grid Height="48" Width="350">
+			<Grid Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ActualWidth}">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="20"/>
 				</Grid.ColumnDefinitions>
 				
-				<Image Margin="8" Source="{Binding Icon}" SnapsToDevicePixels="True"/>
+				<Image Height="32" Margin="8" Source="{Binding Icon}" SnapsToDevicePixels="True"/>
 				<StackPanel Grid.Column="1" Margin="8">
 					<TextBlock Text="{Binding FilePath}" FontWeight="Bold" />
-					<TextBlock Text="{Binding UserFriendlyDescription}" FontStyle="Italic" />
+					<TextBlock Text="{Binding UserFriendlyDescription}" FontStyle="Italic" TextWrapping="Wrap" />
 				</StackPanel>
 			</Grid>
 		</DataTemplate>
@@ -62,10 +63,13 @@
 					</LinearGradientBrush>
 				</Border.Background>
 			</Border>
-        
-			<ListBox Margin="16,0,16,16" AllowDrop="True" AlternationCount="2" Grid.Row="1"
-				ItemTemplate="{DynamicResource InstallableItemDataTemplate}" 
-				ItemsSource="{Binding ProgramsList, Source={StaticResource ProgramsToInstall}}" />
+        	
+			<Grid Margin="16,0,16,16" Grid.Row="1"
+				  DataContext="{Binding InstallQueue}" d:DataContext="{Binding ProgramsList, Source={StaticResource ProgramsToInstall}}">
+				<ListBox AllowDrop="True" AlternationCount="2" 
+					ItemTemplate="{DynamicResource InstallableItemDataTemplate}" 
+					ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Hidden" />
+			</Grid>
         
 			<Grid Grid.Row="2" Margin="16,0,16,8">
 				<Grid.ColumnDefinitions>
